@@ -26,7 +26,8 @@ exports.getClient = async (req, res) => {
 };
 
 exports.addClient = async (req, res, next) => {
-  let { fullName, email, mobileNumber, password, companyName } = req.body;
+  let { fullName, email, mobileNumber, password, companyName, createdBy } =
+    req.body;
   console.log("req.body ", req.body);
   await sequelize.transaction(async t => {
     try {
@@ -44,23 +45,45 @@ exports.addClient = async (req, res, next) => {
         },
         { transaction: t }
       );
+      console.log(client);
+      //FIXME: Apply karans solution
+      await models.user.create(
+        {
+          userName: fullName,
+          email,
+          mobileNumber,
+          password,
+          createdBy,
+          roleName: "client",
+          userId: client.dataValues.id,
+        },
+        { transaction: t }
+      );
     } catch (error) {
       console.log(error);
       return res.status(400).json({ message: "something went wrong" });
     }
   });
-  return res.json({ message: "employee created" });
+  return res.status(200).json({ message: "employee created" });
 };
 
 exports.deleteClient = async (req, res) => {
-  await models.client.update(
+  const client = await models.client.update(
     { isActive: false },
     { where: { id: req.params.id } }
+  );
+  await models.user.update(
+    { isActive: false },
+    { where: { email: client.email } }
   );
   return res.status(200).json({ message: "Client deletd" });
 };
 
 exports.updateClient = async (req, res) => {
-  await models.client.update(req.body, { where: { id: req.params.id } });
+  await models.client.update(req.body, {
+    where: { id: req.params.id },
+  });
+  console.log(client);
+  // await models.user.update(req.body, { where: { email: client.email } });
   return res.status(200).json({ message: "Client updated" });
 };

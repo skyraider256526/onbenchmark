@@ -1,6 +1,10 @@
 const models = require("../../models");
+const { createReferenceCode } = require("../../utlis/referenceCode");
 const sequelize = models.sequelize;
 const Sequelize = models.Sequelize;
+const Op = Sequelize.Op;
+const moment = require("moment");
+const { isNull } = require("lodash");
 
 // add user
 exports.addUser = async (req, res, next) => {
@@ -216,4 +220,89 @@ exports.changePasswordByAdmin = async (req, res, next) => {
     }
     return res.status(200).json({ message: "Password Updated." });
   }
+};
+
+// Send otp to user
+exports.sendOtp = async (req, res, next) => {
+  const { mobileNumber } = req.body;
+  let userDetails = await models.user.findOne({ where: { mobileNumber } });
+  if (userDetails) {
+    let otp = Math.floor(1000 + Math.random() * 9000);
+    const referenceCode = createReferenceCode(5);
+    let createdTime = new Date();
+    let expiryTime = moment.utc(createdTime).add(10, "m");
+
+    await sequelize.transaction(async t => {
+      await models.userOtp.destroy({ where: { mobileNumber }, transaction: t });
+      await models.userOtp.create(
+        { mobileNumber, otp, createdTime, expiryTime, referenceCode },
+        { transaction: t }
+      );
+    });
+
+    //FIXME: Send otp via mobile or email
+    // let message =
+    //    `OTP for Reset Password for Reference No. ${referenceCode}, is ${otp}. This OTP is valid for only 10 Minutes.`;
+    // await sms.sendSms(mobileNumber, message);
+    // request(`${CONSTANT.SMSURL}username=${CONSTANT.SMSUSERNAME}&password=${CONSTANT.SMSPASSWORD}&type=0&dlr=1&destination=${mobileNumber}&source=nicalc&message=For refrence code ${referenceCode} your OTP is ${otp}. This otp is valid for only 10 minutes`);
+    return res.status(200).json({
+      message: "Otp send to your Mobile number.",
+      referenceCode: referenceCode,
+    });
+  } else {
+    res
+      .status(400)
+      .json({ message: "User does not exists, please contact to Admin" });
+  }
+};
+
+exports.verifyOtp = async (req, res, next) => {
+  let { referenceCode, otp } = req.body;
+  var todayDateTime = new Date();
+  let verifyUser = await models.userOtp.findOne({
+    where: {
+      referenceCode,
+      otp,
+      expiryTime: {
+        [Op.gte]: todayDateTime,
+      },
+    },
+  });
+  if (!verifyUser || isNull(verifyUser)) {
+    return res.status(400).json({ message: `Invalid otp` });
+  }
+  await sequelize.transaction(async t => {
+    let verifyFlag = await models.userOtp.update(
+      { isVerified: true },
+      { where: { id: verifyUser.id }, transaction: t }
+    );
+  });
+  return res.status(200).json({ message: "Success", referenceCode });
+};
+
+exports.updatePassword = async (req, res, next) => {
+  const { referenceCode, newPassword } = req.body;
+  var todayDateTime = new Date();
+
+  let verifyUser = await models.userOtp.findOne({
+    where: { referenceCode, isVerified: true },
+  });
+  if (isNull(verifyUser)) {
+    return res.status(400).json({ message: `Invalid otp.` });
+  }
+  let user = await models.user.findOne({
+    where: { mobileNumber: verifyUser.mobileNumber },
+  });
+  if (isNull(user)) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  let updatePassword = await user.update(
+    { password: newPassword, modifiedBy: user.id },
+    { where: { id: user.id } }
+  );
+  console.log(updatePassword);
+  if (updatePassword[0] == 0) {
+    return res.status(400).json({ message: `Password update failed.` });
+  }
+  return res.status(200).json({ message: "Password Updated." });
 };

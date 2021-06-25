@@ -9,6 +9,9 @@ const {
   getUserById,
   changeRole,
   changePasswordByAdmin,
+  sendOtp,
+  verifyOtp,
+  updatePassword,
 } = require("../controllers/user/userAuthController");
 const {
   addUserValidation,
@@ -49,6 +52,13 @@ route.get("/admin-user/:id", getUserById);
 
 // change role of user
 route.post("/admin-role/:id", checkAuth, changeRole);
+
+// Forgot password
+route.post("/send-otp", sendOtp);
+
+route.post("/verify-otp", verifyOtp);
+
+route.post("/update-password", updatePassword);
 
 // change password by admin
 route.post("/change-passwd/:id", checkAuth, changePasswordByAdmin);
