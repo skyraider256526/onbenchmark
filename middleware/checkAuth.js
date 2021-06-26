@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { JWT_EXPIRATIONTIME, JWT_SECRETKEY } = require("../utlis/constant");
 const models = require("../models");
 
-module.exports = async (req, res, next) => {
+module.exports = role => async (req, res, next) => {
   if (!req.headers.authorization) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -12,12 +12,20 @@ module.exports = async (req, res, next) => {
     const decoded = await jwt.verify(token, JWT_SECRETKEY);
     console.log(decoded);
     req.userData = decoded;
-    if (decoded.isAdmin) {
-      next();
-    } else {
-      return res.status(401).json({
-        message: "Not a admin login",
-      });
+    if (role === "admin") {
+      if (decoded.isAdmin) {
+        next();
+      } else {
+        return res.status(401).json({
+          message: "Not a admin login",
+        });
+      }
+    } else if (role === "resourceManager") {
+      if (decoded.isResourceManager) next();
+      else
+        return res
+          .status(401)
+          .json({ message: "not a resource manager login" });
     }
   } catch (error) {
     await models.logger.destroy({ where: { token: token } });

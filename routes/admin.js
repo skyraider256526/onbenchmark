@@ -8,11 +8,13 @@ const {
   getClient,
   deleteClient,
   updateClient,
+  deployResource,
 } = require("../controllers/admin/adminController");
 const {
   addClientValidation,
   deleteClientValidation,
   updateClientValidation,
+  deployResourceValidation,
 } = require("../validations/admin");
 
 // add client
@@ -29,5 +31,8 @@ route.get("/", getAllClient);
 
 // get client by id
 route.get("/:id", getClient);
+
+// deploy resource
+route.post("/deploy", deployResourceValidation, deployResource);
 
 module.exports = route;

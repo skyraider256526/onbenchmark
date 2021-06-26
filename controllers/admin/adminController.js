@@ -87,3 +87,16 @@ exports.updateClient = async (req, res) => {
   // await models.user.update(req.body, { where: { email: client.email } });
   return res.status(200).json({ message: "Client updated" });
 };
+
+exports.deployResource = async (req, res) => {
+  const { empIds, clientId } = req.body;
+  // empIds is an array of ids of employee table
+  await models.empList.update(
+    { isActive: false },
+    {
+      where: {
+        id: empIds,
+      },
+    }
+  );
+};
