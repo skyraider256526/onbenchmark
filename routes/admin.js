@@ -8,7 +8,6 @@ const {
   getClient,
   deleteClient,
   updateClient,
-  deployResource,
 } = require("../controllers/admin/adminController");
 const {
   addClientValidation,
@@ -16,6 +15,7 @@ const {
   updateClientValidation,
   deployResourceValidation,
 } = require("../validations/admin");
+const { deployResource } = require("../controllers/common");
 
 // add client
 route.post("/", addClientValidation, validationError, addClient);

@@ -17,6 +17,6 @@ router.use("/employee", employee);
 const admin = require("./admin");
 const checkAuth = require("../middleware/checkAuth");
 // all actions are done by admin so checkAuth
-router.use("/admin/client", checkAuth("admin"), admin);
+router.use("/admin/client", checkAuth, admin);
 
 module.exports = router;
