@@ -1,39 +1,40 @@
 const models = require("../../models");
 const sequelize = models.sequelize;
 const Sequelize = models.Sequelize;
-const cache = require("../../utlis/cache");
+// const cache = require("../../utlis/cache");
 
 // add user
-exports.addUser = async (req, res, next) => {
+exports.addAdmin = async (req, res, next) => {
   let {
+    userName,
     email,
     password,
     mobileNumber,
-    firstName,
-    lastName,
     roleId,
     createdBy,
     modifiedBy,
     roleName,
     roleDescription,
-    companyName,
   } = req.body;
   console.log("req.body ", req.body);
-  await sequelize.transaction(async t => {
-    const user = await models.user.create(
+  await sequelize.transaction(async (t) => {
+    const user = await models.admin.create(
+      { userName, email, password, mobileNumber, createdBy, modifiedBy },
+      { transaction: t }
+    );
+    await models.user.create(
       {
-        firstName,
-        lastName,
+        userName,
         password,
         email,
+        userId: user.dataValues.id,
         mobileNumber,
+        roleName,
         createdBy,
         modifiedBy,
-        companyName,
       },
       { transaction: t }
     );
-    await models.userRole.create({ roleId, userId: user.id });
     await models.role.create(
       {
         role_id: user.id,
@@ -49,45 +50,42 @@ exports.addUser = async (req, res, next) => {
 };
 
 // update user
-exports.updateUser = async (req, res, next) => {
+exports.updateAdmin = async (req, res, next) => {
   let {
-    firstName,
-    lastName,
+    userName,
     email,
     password,
     mobileNumber,
-    companyName,
+    roleId,
     resetPassword,
     modifiedBy,
     id,
   } = req.body;
-  await sequelize.transaction(async t => {
-    // const admin_user = await models.admin.findOne({ where: { id, isActive:true } });
-    const User = await models.user.findOne({ where: { id, isActive: true } });
-    console.log("user found for update ", User.dataValues.id);
-    if (!User) {
-      return res.status(400).json({ message: "admin user not found" });
-    } else {
+  await sequelize.transaction(async (t) => {
+    const admin_user = await models.admin.findOne({ where: { id, isActive:true } });
+    const User = await models.user.findOne({where:{ userId:id, isActive:true }})
+    console.log("user found for update ", User.dataValues.userId, admin_user.dataValues.id);
+    if(!admin_user){
+      return res.status(400).json({message:'admin user not found'})
+    }else{
       if (resetPassword) {
-        const newUser = await User.update(
-          {
-            firstName,
-            lastName,
-            companyName,
-            email,
-            password,
-            mobileNumber,
-            modifiedBy,
-          },
+        await admin_user.update(
+          { userName, email, password, mobileNumber, modifiedBy },
           { transaction: t }
         );
-        console.log(newUser);
+        await User.update(
+          { userName, email, password, mobileNumber, modifiedBy },
+          { transaction: t }
+        )
       } else {
-        const newUser = await User.update(
-          { firstName, lastName, companyName, email, mobileNumber, modifiedBy },
+        await admin_user.update(
+          { userName, email, mobileNumber, modifiedBy },
           { transaction: t }
         );
-        console.log(newUser);
+        await User.update(
+          { userName, email, mobileNumber, modifiedBy },
+          { transaction: t }
+        )
       }
     }
   });
@@ -95,31 +93,30 @@ exports.updateUser = async (req, res, next) => {
 };
 
 // delete user
-exports.deleteUser = async (req, res, next) => {
-  let { id } = req.params;
+exports.deleteAdmin = async (req, res, next) => {
+  let { id } = req.body;
   let modifiedBy = 0;
-  console.log("id ", id);
-  await sequelize.transaction(async t => {
-    // const admin_user = await models.admin.update(
-    //   { isActive: false, modifiedBy },
-    //   { where: { id } }
-    // );
+  await sequelize.transaction(async (t) => {
+    const admin_user = await models.admin.update(
+      { isActive: false, modifiedBy },
+      { where: { id } }
+    );
     await models.userRole.update(
       { isActive: false },
       { where: { userId: id } }
     );
-    await models.role.update({ isActive: false }, { where: { role_id: id } });
-    await models.user.update({ isActive: false }, { where: { id: id } });
+    await models.user.update(
+      { isActive:false },
+      { where:{userId:id}}
+    )
   });
   return res.status(200).json({ message: "user deleted" });
 };
 
 // get all users
-exports.getAllUser = async (req, res, next) => {
-  const user = await models.user.findAll({ where: { isActive: true } });
-  const roles = await models.role.findAll({ where: { isActive: true } });
-  // console.log("roles ", roles)
-  // console.log(user);
+exports.getAllAdmin = async (req, res, next) => {
+  const user = await models.admin.findAll({ where: { isActive: true } });
+  console.log(user);
   if (user.length > 0) {
     return res
       .status(200)
@@ -147,7 +144,7 @@ exports.getUserById = async (req, res, next) => {
 // change role by admin
 exports.changeRole = async (req, res, next) => {
   let { roleId, id } = req.body;
-  await sequelize.transaction(async t => {
+  await sequelize.transaction(async (t) => {
     const user = await models.user.findOne({ where: { id } });
     console.log("User ", user);
     if (!user) {
@@ -216,50 +213,5 @@ exports.changePasswordByAdmin = async (req, res, next) => {
       return res.status(400).json({ message: `Password update failed.` });
     }
     return res.status(200).json({ message: "Password Updated." });
-  }
-};
-
-// get client list
-exports.getListOfClients = async (req, res, next) => {
-  const user = await models.user.findAll({ where: { isActive: true } });
-  const roles = await models.role.findAll({
-    where: { roleName: "client", isActive: true },
-  });
-  const userFound = roles.map(
-    async data =>
-      await models.user.findOne({ where: { id: data.role_id, isActive: true } })
-  );
-  const clients = await Promise.all(userFound);
-  console.log("roles ", userFound);
-  console.log("clients ", clients);
-  if (user.length > 0) {
-    return res
-      .status(200)
-      .json({ message: "all users detailed fetched successfully", clients });
-  } else {
-    return res.status(200).json({ message: "no users found" });
-  }
-};
-
-// get resource manager list
-exports.getListOfResourceManager = async (req, res, next) => {
-  const user = await models.user.findAll({ where: { isActive: true } });
-  const roles = await models.role.findAll({
-    where: { roleName: "resource_manager", isActive: true },
-  });
-  const userFound = roles.map(
-    async data => await models.user.findOne({ where: { id: data.role_id } })
-  );
-  const resource_managers = await Promise.all(userFound);
-  // console.log("roles ", uf)
-  if (user.length > 0) {
-    return res
-      .status(200)
-      .json({
-        message: "all users detailed fetched successfully",
-        resource_managers,
-      });
-  } else {
-    return res.status(200).json({ message: "no users found" });
   }
 };

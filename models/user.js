@@ -3,9 +3,9 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "user",
     {
-      userName: {
+      firstName: {
         type: DataTypes.STRING,
-        field: "user_name",
+        field: "first_name",
         allowNull: false,
         validate: {
           len: {
@@ -13,15 +13,15 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
-      userId: {
+      lastName: {
         type: DataTypes.STRING,
-        field: "user_id",
+        field: "last_name",
         allowNull: false,
-      },
-      roleName: {
-        type: DataTypes.STRING,
-        field: "role_name",
-        allowNull: false,
+        validate: {
+          len: {
+            args: [0, 30],
+          },
+        },
       },
       password: {
         type: DataTypes.TEXT,
@@ -33,20 +33,20 @@ module.exports = (sequelize, DataTypes) => {
         field: "mobile_number",
         allowNull: false,
       },
-      email: {
+      companyName: {
         type: DataTypes.STRING,
-        field: "email",
-        allowNull: false,
-        validate: {
-          len: {
-            args: [0, 30],
-          },
-        },
+        field: "company_name",
+        allowNull: true,
       },
       isActive: {
         type: DataTypes.BOOLEAN,
         field: "is_active",
         defaultValue: true,
+      },
+      email: {
+        type: DataTypes.STRING,
+        field: "email",
+        allowNull: false,
       },
       createdBy: {
         type: DataTypes.INTEGER,
@@ -55,10 +55,6 @@ module.exports = (sequelize, DataTypes) => {
       modifiedBy: {
         type: DataTypes.INTEGER,
         field: "modified_by",
-      },
-      lastLogin: {
-        type: DataTypes.DATE,
-        field: "last_login",
       },
     },
     {
