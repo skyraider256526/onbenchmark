@@ -43,6 +43,12 @@ const {
   getListOfResourceManager,
 } = require("../controllers/user/userAuthController");
 
+const {
+  addClientValidation,
+  deleteClientValidation,
+  updateClientValidation,
+  deployResourceValidation,
+} = require("../validations/admin");
 // add admins
 route.post(
   "/",
@@ -126,5 +132,9 @@ route.get("/all-resources", getAllEmployee);
 // route.get('/resource/client',checkAuth, getEmployeeListOfClient);
 
 // get resource manager by id
+
+// deploy resource
+const { deployResource } = require("../controllers/common");
+route.post("/deploy", deployResourceValidation, deployResource);
 
 module.exports = route;

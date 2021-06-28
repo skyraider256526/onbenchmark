@@ -131,3 +131,10 @@ exports.updateClientValidation = [
     }),
   body("companyName").not().isEmpty().withMessage("companyName is required"),
 ];
+
+exports.deployResourceValidation = [
+  body("empIds")
+    .isArray({ min: 1 })
+    .withMessage("list of employee id are required"),
+  body("clientId").notEmpty(),
+];

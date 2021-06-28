@@ -7,10 +7,13 @@ const redisConn = require("../config/redis");
 const client = redis.createClient(redisConn.PORT, redisConn.HOST);
 
 module.exports = async (req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
   const token = await req.headers.authorization.split(" ")[1];
   console.log("token from check auth ", token);
   try {
-    const decoded = await jwt.verify(token, JWT_SECRETKEY);
+    const decoded = jwt.verify(token, JWT_SECRETKEY);
     req.userData = decoded;
     if (decoded.isAdmin) {
       next();
