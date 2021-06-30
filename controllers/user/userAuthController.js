@@ -1,7 +1,7 @@
 const models = require("../../models");
 const sequelize = models.sequelize;
 const Sequelize = models.Sequelize;
-const cache = require("../../utlis/cache");
+// const cache = require("../../utlis/cache");
 
 // add user
 exports.addUser = async (req, res, next) => {
@@ -253,12 +253,10 @@ exports.getListOfResourceManager = async (req, res, next) => {
   const resource_managers = await Promise.all(userFound);
   // console.log("roles ", uf)
   if (user.length > 0) {
-    return res
-      .status(200)
-      .json({
-        message: "all users detailed fetched successfully",
-        resource_managers,
-      });
+    return res.status(200).json({
+      message: "all users detailed fetched successfully",
+      resource_managers,
+    });
   } else {
     return res.status(200).json({ message: "no users found" });
   }

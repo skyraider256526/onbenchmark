@@ -1,0 +1,9 @@
+{
+  "delay": 2,
+  "events": {
+    "start": "cls || clear"
+  },
+  "ignore": [
+    "misc/"
+  ]
+}

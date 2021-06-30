@@ -5,6 +5,7 @@ const Op = sequelize.Op;
 
 exports.addUserValidation = [
   body("firstName").not().isEmpty().withMessage("User name is required"),
+  body("lastName").notEmpty().withMessage("last name is required"),
   body("email")
     .not()
     .isEmpty()
@@ -60,6 +61,10 @@ exports.addUserValidation = [
   body("password").not().isEmpty().withMessage("Password is required"),
   body("roleId").not().isEmpty().withMessage("roleId is required"),
   body("roleName").not().isEmpty().withMessage("roleName is required"),
+  body("companyName")
+    .notEmpty()
+    .withMessage("companyName cannot be empty")
+    .optional(),
 ];
 
 exports.UpdateUserValidation = [

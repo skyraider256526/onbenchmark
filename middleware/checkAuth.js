@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
 const { JWT_EXPIRATIONTIME, JWT_SECRETKEY } = require("../utlis/constant");
 const models = require("../models");
-const redis = require("redis");
-const redisConn = require("../config/redis");
+// const redis = require("redis");
+// const redisConn = require("../config/redis");
 
-const client = redis.createClient(redisConn.PORT, redisConn.HOST);
+// const client = redis.createClient(redisConn.PORT, redisConn.HOST);
 
 module.exports = async (req, res, next) => {
   if (!req.headers.authorization) {

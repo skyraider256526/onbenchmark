@@ -136,5 +136,5 @@ exports.deployResourceValidation = [
   body("empIds")
     .isArray({ min: 1 })
     .withMessage("list of employee id are required"),
-  body("clientId").notEmpty(),
+  body("clientId").notEmpty().withMessage("clientId is required"),
 ];

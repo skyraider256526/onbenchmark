@@ -49,6 +49,7 @@ const {
   updateClientValidation,
   deployResourceValidation,
 } = require("../validations/admin");
+
 // add admins
 route.post(
   "/",
@@ -69,28 +70,28 @@ route.put(
 );
 
 // delete admin user
-route.delete("/user/:id", checkAuth, wrapper(deleteUser));
+route.delete("/user/:id", wrapper(deleteUser));
 
 // get admin users
 route.get("/all", wrapper(getAllUser));
 
 // get admin user by id
-route.get("/user/:id", checkAuth, wrapper(getUserById));
+route.get("/user/:id", wrapper(getUserById));
 
 // change role by admin
-route.post("/role", checkAuth, wrapper(changeRole));
+route.post("/role", wrapper(changeRole));
 
 // change password by admin
-route.post("/change-password", checkAuth, wrapper(changePasswordByAdmin));
+route.post("/change-password", wrapper(changePasswordByAdmin));
 
 // get client list
-route.get("/clients", checkAuth, wrapper(getListOfClients));
+route.get("/clients", wrapper(getListOfClients));
 
 // get resource manager list
-route.get("/resource-managers", checkAuth, wrapper(getListOfResourceManager));
+route.get("/resource-managers", wrapper(getListOfResourceManager));
 
 // add employee
-route.post("/resource", checkAuth, wrapper(addEmployee));
+route.post("/resource", wrapper(addEmployee));
 
 // update resource
 route.put("/resource", updateEmployee);
@@ -102,7 +103,12 @@ route.delete("/resource/:id", deleteEmployee);
 route.get("/all-resources", getAllEmployee);
 
 // add resource manager
-// route.post('/resource-manager',checkAuth, addResourceManager);
+// route.post(
+//   "/resource-manager",
+//   addUserValidation,
+//   checkAuth,
+//   addResourceManager
+// );
 
 // update resource manager
 // route.put('/resource-manager',checkAuth, updateResourceManager);
@@ -134,7 +140,13 @@ route.get("/all-resources", getAllEmployee);
 // get resource manager by id
 
 // deploy resource
-const { deployResource } = require("../controllers/common");
-route.post("/deploy", deployResourceValidation, deployResource);
+const { adminDeployResource } = require("../controllers/admin/adminController");
+route.post(
+  "/resource/deploy",
+
+  deployResourceValidation,
+  validationError,
+  adminDeployResource
+);
 
 module.exports = route;

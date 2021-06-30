@@ -62,14 +62,38 @@ exports.userLogin = async (req, res, next) => {
           createdDate: createdTime,
         });
         res.status(200).json({ message: "login successful", Token });
-      } else {
-        console.log("user is not an admin");
+      } else if (checkRole.roleName === "resource_manager") {
+        console.log("user is resource manager ");
         let Token = jwt.sign(
           {
             id: checkUser.dataValues.id,
             mobile: checkUser.dataValues.mobileNumber,
             userName: checkUser.dataValues.userName,
-            isAdmin: false,
+            isResourceManager: true,
+          },
+          JWT_SECRETKEY,
+          {
+            expiresIn: JWT_EXPIRATIONTIME,
+          }
+        );
+        console.log("token ", Token);
+        const decoded = jwt.verify(Token, JWT_SECRETKEY);
+        const createdTime = new Date(decoded.iat * 1000).toGMTString();
+        const expiryTime = new Date(decoded.exp * 1000).toGMTString();
+        models.logger.create({
+          userId: decoded.id,
+          token: Token,
+          expiryDate: expiryTime,
+          createdDate: createdTime,
+        });
+        res.status(200).json({ message: "login successful", Token });
+      } else {
+        console.log("user is client");
+        let Token = jwt.sign(
+          {
+            id: checkUser.dataValues.id,
+            mobile: checkUser.dataValues.mobileNumber,
+            userName: checkUser.dataValues.userName,
           },
           JWT_SECRETKEY,
           {

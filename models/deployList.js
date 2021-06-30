@@ -2,10 +2,10 @@ module.exports = (sequelize, DataTypes) => {
   const DeployList = sequelize.define(
     "deployList",
     {
-      listOfEmp: {
-        type: DataTypes.ARRAY(DataTypes.INTEGER),
-        field: "list_of_emp",
-        defaultValue: [],
+      employeeId: {
+        type: DataTypes.INTEGER,
+        field: "employee_id",
+        allowNull: false,
       },
       clientId: {
         type: DataTypes.INTEGER,
