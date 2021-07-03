@@ -22,7 +22,7 @@ exports.resourceManagerDeployResource = async (req, res) => {
         employeeId: id,
         clientId,
       }));
-      await models.deployList
+      await models.resourceManagerDeployList
         .bulkCreate(bulkData, { transaction: t })
         .then(() => console.log("Bulk Create of deploy list"));
     });

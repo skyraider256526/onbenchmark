@@ -51,23 +51,11 @@ const {
 } = require("../validations/admin");
 
 // add admins
-route.post(
-  "/",
-  checkAuth,
-  addUserValidation,
-  validationError,
-  wrapper(addUser)
-);
+route.post("/", addUserValidation, validationError, wrapper(addUser));
 // route.post('/', addUserValidation, validationError, addUser);
 
 // update admin user
-route.put(
-  "/",
-  checkAuth,
-  UpdateUserValidation,
-  validationError,
-  wrapper(updateUser)
-);
+route.put("/", UpdateUserValidation, validationError, wrapper(updateUser));
 
 // delete admin user
 route.delete("/user/:id", wrapper(deleteUser));

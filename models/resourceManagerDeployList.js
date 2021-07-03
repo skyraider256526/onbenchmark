@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const DeployList = sequelize.define(
-    "deployList",
+  const ResourceManagerDeployList = sequelize.define(
+    "resourceManagerDeployList",
     {
       employeeId: {
         type: DataTypes.INTEGER,
@@ -15,9 +15,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       freezeTableName: true,
-      tableName: "deploy_list",
+      tableName: "resource_manager_deploy_list",
       timestamps: false,
     }
   );
-  return DeployList;
+  return ResourceManagerDeployList;
 };

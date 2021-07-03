@@ -13,15 +13,29 @@ const {
   deleteEmployee,
   getAllEmployee,
 } = require("../controllers/employee/employeeAuthController");
+const {
+  addEmployeeValidation,
+  updateEmployeeValidation,
+} = require("../validations/employee");
 
 // get client list
 // route.get("/clients",  wrapper(getListOfClients));
 
 // add employee
-route.post("/resource", wrapper(addEmployee));
+route.post(
+  "/resource",
+  addEmployeeValidation,
+  validationError,
+  wrapper(addEmployee)
+);
 
 // update resource
-route.put("/resource", updateEmployee);
+route.put(
+  "/resource",
+  updateEmployeeValidation,
+  validationError,
+  updateEmployee
+);
 
 // delete resource
 route.delete("/resource/:id", deleteEmployee);
