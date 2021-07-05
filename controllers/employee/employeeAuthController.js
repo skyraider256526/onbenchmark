@@ -15,6 +15,7 @@ exports.addEmployee = async (req, res, next) => {
   } = req.body;
   console.log("req.body ", req.body);
   await sequelize.transaction(async t => {
+    console.log(req.file);
     const emp = await models.employee.create(
       {
         firstName,
@@ -24,6 +25,7 @@ exports.addEmployee = async (req, res, next) => {
         technology,
         yearOfExperience,
         currentLocation,
+        resumePdf: req.file.buffer,
       },
       { transaction: t }
     );

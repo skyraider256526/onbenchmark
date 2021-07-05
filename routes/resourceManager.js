@@ -6,6 +6,7 @@ const { wrapper } = require("../utlis/errorWrap");
 const { deployResourceValidation } = require("../validations/resourceManager");
 const {
   resourceManagerDeployResource,
+  getRequestEmployeeList,
 } = require("../controllers/resourceManager/resourceManagerController");
 const {
   addEmployee,
@@ -17,6 +18,8 @@ const {
   addEmployeeValidation,
   updateEmployeeValidation,
 } = require("../validations/employee");
+const { getListOfClients } = require("../controllers/user/userAuthController");
+const upload = require("../config/multer");
 
 // get client list
 // route.get("/clients",  wrapper(getListOfClients));
@@ -24,6 +27,7 @@ const {
 // add employee
 route.post(
   "/resource",
+  upload.single("resume"),
   addEmployeeValidation,
   validationError,
   wrapper(addEmployee)
@@ -50,6 +54,12 @@ route.post(
   validationError,
   resourceManagerDeployResource
 );
+
+// Get all requested employee list
+route.get("/requestList", getRequestEmployeeList);
+
+// Get all client
+route.get("/clients", getListOfClients);
 
 // change password by admin
 

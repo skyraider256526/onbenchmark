@@ -32,3 +32,13 @@ exports.resourceManagerDeployResource = async (req, res) => {
     return res.status(400).json({ message: "Something went wrong" });
   }
 };
+
+exports.getRequestEmployeeList = async (req, res) => {
+  try {
+    const list = await models.empList.findAll();
+    return res.status(200).json(list);
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send("Something went wrong");
+  }
+};

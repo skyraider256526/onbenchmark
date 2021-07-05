@@ -86,7 +86,13 @@ exports.userLogin = async (req, res, next) => {
           expiryDate: expiryTime,
           createdDate: createdTime,
         });
-        res.status(200).json({ message: "login successful", Token });
+        res
+          .status(200)
+          .json({
+            message: "login successful",
+            Token,
+            isResourceManager: true,
+          });
       } else {
         console.log("user is client");
         let Token = jwt.sign(
