@@ -1,5 +1,6 @@
 const models = require("../../models");
 const sequelize = models.sequelize;
+const stream = require("stream");
 const Sequelize = models.Sequelize;
 
 // add employee
@@ -120,4 +121,29 @@ exports.getEmployeeListOfClient = async (req, res, next) => {
       .status(401)
       .json({ message: "client has not selected any candidate yet." });
   }
+};
+
+exports.getResume = (req, res) => {
+  if (!req.params.id) return res.status(405).json({ message: "id required" });
+  console.log(req.params.id);
+  models.employee
+    .findByPk(req.params.id)
+    .then(file => {
+      // console.log(file);
+      // var fileContents = Buffer.from(file.resumePdf, "base64");
+      // var readStream = new stream.PassThrough();
+      // readStream.end(fileContents);
+      res.set(
+        "Content-disposition",
+        `attachment; filename=${file.firstName + file.lastName}`.pdf
+      );
+      res.set("Content-Type", "application/pdf");
+      res.write(file.resumePdf);
+      res.end();
+      // readStream.pipe(res);
+    })
+    .catch(err => {
+      console.log(err);
+      res.json({ msg: "Error", detail: err });
+    });
 };

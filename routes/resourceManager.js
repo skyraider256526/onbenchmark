@@ -13,6 +13,7 @@ const {
   updateEmployee,
   deleteEmployee,
   getAllEmployee,
+  getResume,
 } = require("../controllers/employee/employeeAuthController");
 const {
   addEmployeeValidation,
@@ -32,6 +33,9 @@ route.post(
   validationError,
   wrapper(addEmployee)
 );
+
+// get resume
+route.get("/resource/resume/:id", getResume);
 
 // update resource
 route.put(
