@@ -41,7 +41,9 @@ exports.userLogin = async (req, res, next) => {
         console.log("user is admin ");
         let Token = jwt.sign(
           {
-            id: checkUser.dataValues.id,
+            user: {
+              id: checkUser.dataValues.id,
+            },
             mobile: checkUser.dataValues.mobileNumber,
             userName: checkUser.dataValues.userName,
             isAdmin: true,
@@ -61,7 +63,14 @@ exports.userLogin = async (req, res, next) => {
           expiryDate: expiryTime,
           createdDate: createdTime,
         });
-        res.status(200).json({ message: "login successful", Token });
+        res.status(200).json({
+          message: "login successful",
+          Token,
+          user: {
+            id: checkUser.dataValues.id,
+          },
+          isAdmin: true,
+        });
       } else if (checkRole.roleName === "resource_manager") {
         console.log("user is resource manager ");
         let Token = jwt.sign(
@@ -86,13 +95,14 @@ exports.userLogin = async (req, res, next) => {
           expiryDate: expiryTime,
           createdDate: createdTime,
         });
-        res
-          .status(200)
-          .json({
-            message: "login successful",
-            Token,
-            isResourceManager: true,
-          });
+        res.status(200).json({
+          message: "login successful",
+          Token,
+          isResourceManager: true,
+          user: {
+            id: checkUser.dataValues.id,
+          },
+        });
       } else {
         console.log("user is client");
         let Token = jwt.sign(
@@ -116,7 +126,13 @@ exports.userLogin = async (req, res, next) => {
           expiryDate: expiryTime,
           createdDate: createdTime,
         });
-        res.status(200).json({ message: "login successful" });
+        res.status(200).json({
+          message: "login successful",
+          user: {
+            id: checkUser.dataValues.id,
+          },
+          isClient: true,
+        });
       }
     } else {
       return res

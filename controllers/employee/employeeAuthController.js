@@ -14,7 +14,7 @@ exports.addEmployee = async (req, res, next) => {
     yearOfExperience,
     currentLocation,
   } = req.body;
-  console.log("req.body ", req.body);
+  console.log("req.body ", req.body.firstName);
   await sequelize.transaction(async t => {
     console.log(req.file);
     const emp = await models.employee.create(
@@ -60,6 +60,7 @@ exports.updateEmployee = async (req, res, next) => {
         technology,
         yearOfExperience,
         currentLocation,
+        resumePdf: req.file.buffer,
       },
       { transaction: t }
     );
@@ -133,9 +134,10 @@ exports.getResume = (req, res) => {
       // var fileContents = Buffer.from(file.resumePdf, "base64");
       // var readStream = new stream.PassThrough();
       // readStream.end(fileContents);
+      console.log(file.firstName);
       res.set(
         "Content-disposition",
-        `attachment; filename=${file.firstName + file.lastName}`.pdf
+        `attachment; filename=${file.firstName + file.lastName}.pdf`
       );
       res.set("Content-Type", "application/pdf");
       res.write(file.resumePdf);
